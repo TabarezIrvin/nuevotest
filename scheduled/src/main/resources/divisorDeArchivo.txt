@@ -1,0 +1,74 @@
+""" Este archivo se debe llamar divisorDeArchivo.py """
+""" recuerde que debe tener instalado las librerias xlrd y xlswriter """
+import sys
+import xlrd
+import xlsxwriter
+import time
+import os
+from datetime import datetime
+from datetime import timedelta
+
+def crea_Excel(archivo):
+    workBookWrite = xlsxwriter.Workbook(archivo)
+    return workBookWrite
+
+def crea_pestanha(workBookWrite, pestanha):
+    workBookWriteSheet = workBookWrite.add_worksheet(pestanha)
+    return workBookWriteSheet
+
+def escribe(workBookWriteSheet, row, data):
+    col = 0
+    for dat in data:
+        workBookWriteSheet.write(row, col, dat)
+        col+=1
+    row+=1
+    return row
+    
+def cierra(workBookWrite):
+    workBookWrite.close()
+
+if len(sys.argv) == 4:
+    fileName = sys.argv[1].replace('#', ' ')
+    pathXLSX = sys.argv[2].replace('*', '\\')
+    pathEnd = sys.argv[3].replace('*', '\\')
+    fileExtension = '.xlsx'
+    factor = 1000
+    workBookRead = xlrd.open_workbook(pathXLSX+fileName+fileExtension)
+    workBookReadSheetNames = workBookRead.sheet_names()
+    for pestana in workBookReadSheetNames:
+        countSheet = 0
+        count = 1
+        cabecera = []
+        workBookReadSheet = workBookRead.sheet_by_index(countSheet)
+        workBookWrite = crea_Excel(pathEnd+fileName+'_'+pestana+'_'+str(count)+fileExtension)
+        workBookWriteSheet = crea_pestanha(workBookWrite, pestana)
+        for j in range(workBookReadSheet.ncols):
+            cabecera.append(workBookReadSheet.cell_value(0,j))
+        row = 0
+        for j in range(workBookReadSheet.nrows):
+            contenido = []
+            for k in range(workBookReadSheet.ncols):
+                contenido.append(workBookReadSheet.cell_value(j,k))
+            row = escribe(workBookWriteSheet,row,contenido)
+            if (row>1) and (row-1)%factor==0 and j!=(workBookReadSheet.nrows-1):
+                cierra(workBookWrite)
+                count+=1
+                row = 0
+                workBookWrite = crea_Excel(pathEnd+fileName+'_'+pestana+'_'+str(count)+fileExtension)
+                workBookWriteSheet = crea_pestanha(workBookWrite, pestana)
+                row = escribe(workBookWriteSheet,row,cabecera)
+        cierra(workBookWrite)
+        countSheet+=1
+    now = datetime.now()
+    format = now.strftime('%Y%m%d%H%M%S')
+    fil = open(pathEnd+"proceso"+format+".eon","w+")
+    fil.write("Elproceso de eon termino %d\n" % format)
+    fil.close()
+else:
+    print ("Este programa necesita cuatro parámetros.")
+    print ("1.- es el nombre del programa python")
+    print ("2.- el nombre del archivo xlsx")
+    print ("3.- la ruta de origen del archivo xlsx")
+    print ("4.- la ruta donde se depositaran los archivos seccionados")
+    print ("NOTA. Las rutas deben contener dos * en lugar de dos \\ y el nombre en logar de espacio debe tener un #")
+    

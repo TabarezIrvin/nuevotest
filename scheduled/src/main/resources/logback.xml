@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<property name="LOG_FILE" value="siValeScheduledHUBLog" />
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>C:\logs\${LOG_FILE}.log</file>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	        <fileNamePattern>C:\logs\${LOG_FILE}.%d{yyyy-MM-dd}.zip</fileNamePattern>
+	        <maxHistory>1</maxHistory>
+	        <totalSizeCap>5GB</totalSizeCap>
+	    </rollingPolicy>
+		<encoder>
+			<pattern>%d [%thread] %-5level - [%logger{50}] - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<root level="TRACE">
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>
